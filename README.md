@@ -131,56 +131,7 @@ Includes privacy policy
 Shows commitment to healthcare awareness and data safety
 
 🏗️ System Architecture
-┌──────────────────────────────────────────┐
-│               FRONTEND (React + Vite)    │
-│------------------------------------------│
-│ - User Registration & Login UI           │
-│ - Patient Dashboard                      │
-│ - Provider Dashboard                     │
-│ - Goal Tracker UI                        │
-│ - Profile Management                     │
-│ - Public Health Info Page                │
-│ - Uses JWT for authentication (Bearer)   │
-└──────────────────────────────────────────┘
-                 │  REST API Calls (HTTPS)
-                 ▼
-┌──────────────────────────────────────────┐
-│          BACKEND (Node.js + Express)     │
-│------------------------------------------│
-│ Auth Module                              │
-│ - Register/Login                         │
-│ - JWT generation                         │
-│ - Password hashing (bcrypt)              │
-│                                          │
-│ Patient Module                           │
-│ - Manage goals                           │
-│ - Preventive reminders                   │
-│ - Profile CRUD                            │
-│                                          │
-│ Provider Module                          │
-│ - Assigned patients                      │
-│ - Compliance tracking                    │
-│                                          │
-│ Middleware                               │
-│ - JWT auth                               │
-│ - Role-based access                      │
-│ - Request logging                        │
-│                                          │
-└──────────────────────────────────────────┘
-                 │  Secure DB Operations
-                 ▼
-┌──────────────────────────────────────────┐
-│           DATABASE (MongoDB)             │
-│------------------------------------------│
-│ Collections:                             │
-│ - users (patient/provider)               │
-│ - goals (daily wellness tracking)        │
-│ - preventiveReminders                    │
-│                                          │
-│ Ensures:                                 │
-│ - Encrypted data flow                    │
-│ - Scalable document-based storage        │
-└──────────────────────────────────────────┘
+![WhatsApp Image 2025-11-18 at 15 04 58_d6198285](https://github.com/user-attachments/assets/d3dd3f75-5b2d-471a-9067-aa03870c742c)
 
 🔐 Security & Privacy Measures (MVP Level)
 
