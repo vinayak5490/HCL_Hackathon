@@ -105,3 +105,49 @@ export const login = async (req, res) => {
       .json({ message: "Server error", error: err.message });
   }
 };
+
+export const updateProfile = async (req, res) => {
+  try {
+    const userId = req.user && req.user.id;
+    if (!userId) return res.status(401).json({ message: "Unauthorized" });
+
+    const updatable = [
+      "name",
+      "age",
+      "weight",
+      "allergies",
+      "medications",
+      "consent",
+    ];
+    const updates = {};
+    updatable.forEach((k) => {
+      if (k in req.body) updates[k] = req.body[k];
+    });
+
+    // Prevent email/role/password changes here
+    const user = await User.findByIdAndUpdate(userId, updates, {
+      new: true,
+    }).select("-password");
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    return res.json({
+      message: "Profile updated",
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        age: user.age,
+        weight: user.weight,
+        allergies: user.allergies,
+        medications: user.medications,
+        consent: user.consent,
+      },
+    });
+  } catch (err) {
+    console.error(err);
+    return res
+      .status(500)
+      .json({ message: "Server error", error: err.message });
+  }
+};

@@ -1,6 +1,7 @@
 import User from "../models/User.js";
 import Log from "../models/Log.js";
 import Goal from "../models/Goal.js";
+import dayjs from "dayjs";
 
 export const listAssignedPatients = async (req, res) => {
   try {
@@ -19,6 +20,57 @@ export const listAssignedPatients = async (req, res) => {
       .limit(limit)
       .sort({ name: 1 });
 
+    // compute simple compliance status for each patient based on their latest goal
+    const enhancedPatients = await Promise.all(
+      patients.map(async (p) => {
+        const latest = await Goal.findOne({ user: p._id })
+          .sort({ date: -1 })
+          .lean();
+        let complianceStatus = "No Data";
+        let latestDate = null;
+        let completion = null;
+        if (!latest) {
+          complianceStatus = "Missed Preventive Checkup";
+        } else {
+          latestDate = latest.date;
+          const stepsTarget = 8000;
+          const waterTarget = 2000;
+          const sleepTarget = 7;
+
+          const stepsPct = latest.steps
+            ? Math.min(100, Math.round((latest.steps / stepsTarget) * 100))
+            : 0;
+          const waterPct = latest.water_ml
+            ? Math.min(100, Math.round((latest.water_ml / waterTarget) * 100))
+            : 0;
+          const sleepPct = latest.sleep_hours
+            ? Math.min(
+                100,
+                Math.round((latest.sleep_hours / sleepTarget) * 100)
+              )
+            : 0;
+          completion = { stepsPct, waterPct, sleepPct };
+
+          const daysAgo = dayjs().diff(dayjs(latest.date), "day");
+          if (daysAgo > 7) {
+            complianceStatus = "Missed Preventive Checkup";
+          } else if (stepsPct >= 80 && waterPct >= 80 && sleepPct >= 80) {
+            complianceStatus = "Goal Met";
+          } else if (stepsPct >= 50 || waterPct >= 50 || sleepPct >= 50) {
+            complianceStatus = "Partial";
+          } else {
+            complianceStatus = "At Risk";
+          }
+        }
+
+        const obj = p.toObject ? p.toObject() : p;
+        obj.complianceStatus = complianceStatus;
+        obj.latestGoalDate = latestDate;
+        obj.completion = completion;
+        return obj;
+      })
+    );
+
     // audit log
     await Log.create({
       user: providerId,
@@ -28,7 +80,7 @@ export const listAssignedPatients = async (req, res) => {
       meta: { page, limit },
     });
 
-    return res.json({ patients, page, limit, total });
+    return res.json({ patients: enhancedPatients, page, limit, total });
   } catch (err) {
     console.error(err);
     return res

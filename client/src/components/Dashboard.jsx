@@ -50,6 +50,7 @@ const Dashboard = () => {
             <Link to="/" className="block text-sm px-3 py-2 rounded hover:bg-gray-50">Home</Link>
             <Link to="/profile" className="block text-sm px-3 py-2 rounded hover:bg-gray-50">Profile</Link>
             <Link to="/public" className="block text-sm px-3 py-2 rounded hover:bg-gray-50">Public Info</Link>
+            <Link to="/appointments" className="block text-sm px-3 py-2 rounded hover:bg-gray-50">My Appointments</Link>
           </div>
         </aside>
 
