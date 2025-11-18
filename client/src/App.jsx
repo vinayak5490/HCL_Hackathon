@@ -1,26 +1,33 @@
-import React from 'react';
-import { Routes, Route } from 'react-router-dom';
-import Register from './Pages/Register';
-import Login from './Pages/Login';
-import Dashboard from './Pages/Dashboard';
-import Profile from './Pages/Profile';
-import PublicInfo from './Pages/PublicInfo';
-import PrivateRoute from './components/PrivateRoute';
-import Navbar from './components/Navbar';
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { useAuth } from "./context/AuthContext";
+import Login from "./components/Login";
+import SignUp from "./components/SignUp";
+import Dashboard from "./components/dashboard.jsx";
 
-export default function App(){
+
+const PrivateRoute = ({ children }) => {
+  const { token } = useAuth();
+  return token ? children : <Navigate to="/login" replace />;
+};
+
+export default function App() {
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-800">
-      <Navbar />
-      <main className="max-w-4xl mx-auto px-4 py-8">
-        <Routes>
-          <Route path="/" element={<PublicInfo/>} />
-          <Route path="/register" element={<Register/>} />
-          <Route path="/login" element={<Login/>} />
-          <Route path="/dashboard" element={<PrivateRoute><Dashboard/></PrivateRoute>} />
-          <Route path="/profile" element={<PrivateRoute><Profile/></PrivateRoute>} />
-        </Routes>
-      </main>
-    </div>
+    <BrowserRouter>
+      <Routes>
+        {/* Public */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<SignUp />} />
+
+        {/* Protected */}
+        <Route
+          path="/"
+          element={
+            <PrivateRoute>
+              <Dashboard />
+            </PrivateRoute>
+          }
+        />
+      </Routes>
+    </BrowserRouter>
   );
 }

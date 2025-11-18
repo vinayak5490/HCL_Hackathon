@@ -1,14 +1,16 @@
-const express = require("express");
-const router = express.Router();
-const auth = require("../middleware/auth");
-const {
+import express from 'express';
+import auth from '../middlewares/auth.js';
+import {
   createOrUpdateGoal,
   getGoals,
   getTodaySummary,
-} = require("../controllers/goalController");
+} from '../controllers/goalController.js';
 
-router.post("/", auth, createOrUpdateGoal); // create/update goal
-router.get("/", auth, getGoals); // fetch goals
-router.get("/today", auth, getTodaySummary); // small summary & tip
+const router = express.Router();
 
-module.exports = router;
+// Validation removed (no Zod). Keep endpoints simple; controllers should validate required fields.
+router.post('/', auth, createOrUpdateGoal); // create/update goal
+router.get('/', auth, getGoals); // fetch goals
+router.get('/today', auth, getTodaySummary); // small summary & tip
+
+export default router;

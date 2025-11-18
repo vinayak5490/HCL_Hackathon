@@ -1,8 +1,8 @@
-const User = require("../models/User");
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
+import User from "../models/User.js";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
 
-exports.register = async (req, res) => {
+export const register = async (req, res) => {
   try {
     const {
       name,
@@ -25,7 +25,9 @@ exports.register = async (req, res) => {
       return res.status(400).json({ message: "Email already registered" });
 
     const hashed = await bcrypt.hash(password, 10);
-    const user = await User.create({
+    const { role = "patient", assignedProvider } = req.body;
+
+    const userData = {
       name,
       email,
       password: hashed,
@@ -34,11 +36,29 @@ exports.register = async (req, res) => {
       allergies,
       medications,
       consent,
-    });
+      role,
+    };
+
+    if (role === "patient" && assignedProvider)
+      userData.assignedProvider = assignedProvider;
+
+    const user = await User.create(userData);
+
+    // if creating a patient and assignedProvider provided, add to provider.assignedPatients
+    if (role === "patient" && assignedProvider) {
+      await User.findByIdAndUpdate(assignedProvider, {
+        $addToSet: { assignedPatients: user._id },
+      });
+    }
 
     return res.status(201).json({
       message: "User registered",
-      user: { id: user._id, name: user.name, email: user.email },
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      },
     });
   } catch (err) {
     console.error(err);
@@ -48,7 +68,7 @@ exports.register = async (req, res) => {
   }
 };
 
-exports.login = async (req, res) => {
+export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
     if (!email || !password)
@@ -60,14 +80,23 @@ exports.login = async (req, res) => {
     const ok = await bcrypt.compare(password, user.password);
     if (!ok) return res.status(400).json({ message: "Invalid credentials" });
 
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "1d",
-    });
+    const token = jwt.sign(
+      { id: user._id, role: user.role },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "1d",
+      }
+    );
 
     return res.json({
       message: "Login successful",
       token,
-      user: { id: user._id, name: user.name, email: user.email },
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      },
     });
   } catch (err) {
     console.error(err);

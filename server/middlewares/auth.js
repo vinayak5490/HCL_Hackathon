@@ -1,6 +1,6 @@
-const jwt = require("jsonwebtoken");
+import jwt from "jsonwebtoken";
 
-module.exports = (req, res, next) => {
+export default function auth(req, res, next) {
   const header = req.headers.authorization;
   if (!header)
     return res.status(401).json({ message: "No authorization header" });
@@ -10,9 +10,10 @@ module.exports = (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = { id: decoded.id };
+    // attach user id and role (if present) to request
+    req.user = { id: decoded.id, role: decoded.role || "patient" };
     next();
   } catch (err) {
     return res.status(403).json({ message: "Invalid or expired token" });
   }
-};
+}

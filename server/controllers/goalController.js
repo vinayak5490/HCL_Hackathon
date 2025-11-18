@@ -1,8 +1,8 @@
-const Goal = require("../models/Goal");
-const User = require("../models/User");
-const dayjs = require("dayjs");
+import Goal from "../models/Goal.js";
+import User from "../models/User.js";
+import dayjs from "dayjs";
 
-exports.createOrUpdateGoal = async (req, res) => {
+export const createOrUpdateGoal = async (req, res) => {
   try {
     const userId = req.user.id;
     const {
@@ -38,7 +38,7 @@ exports.createOrUpdateGoal = async (req, res) => {
   }
 };
 
-exports.getGoals = async (req, res) => {
+export const getGoals = async (req, res) => {
   try {
     const userId = req.user.id;
     const { from, to } = req.query;
@@ -58,7 +58,7 @@ exports.getGoals = async (req, res) => {
   }
 };
 
-exports.getTodaySummary = async (req, res) => {
+export const getTodaySummary = async (req, res) => {
   try {
     const userId = req.user.id;
     const today = dayjs().format("YYYY-MM-DD");
