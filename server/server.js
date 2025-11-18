@@ -6,7 +6,7 @@ import connectDB from './config/db.js'
 dotenv.config();
 const app = express();
 const port = process.env.PORT || 3000;
-
+// test
 app.use(cors());
 app.use(express.json());
 
