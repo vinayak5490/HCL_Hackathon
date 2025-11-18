@@ -1,9 +1,9 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { useAuth } from "./context/AuthContext";
-import Login from "./components/Login";
-import SignUp from "./components/SignUp";
-import Dashboard from "./components/dashboard.jsx";
-
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { useAuth } from './context/AuthContext';
+import Login from './components/Login';
+import SignUp from './components/SignUp';
+import Dashboard from './components/dashboard.jsx';
+import Home from './components/Home';
 
 const PrivateRoute = ({ children }) => {
   const { token } = useAuth();
@@ -15,12 +15,13 @@ export default function App() {
     <BrowserRouter>
       <Routes>
         {/* Public */}
+        <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<SignUp />} />
 
-        {/* Protected */}
+        {/* Protected - moved to /dashboard */}
         <Route
-          path="/"
+          path="/dashboard"
           element={
             <PrivateRoute>
               <Dashboard />

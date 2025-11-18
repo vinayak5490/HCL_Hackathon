@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 export default function SignUp() {
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const [form, setForm] = useState({
     name: "",
@@ -28,7 +30,7 @@ export default function SignUp() {
     const payload = { ...form };
     if (payload.assignedProvider === '') delete payload.assignedProvider;
 
-    const res = await fetch("http://localhost:3000/api/auth/register", {
+    const res = await fetch("/api/auth/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
@@ -40,8 +42,25 @@ export default function SignUp() {
       return;
     }
 
-    alert("Registration successful! Please Login.");
-    navigate("/login");
+    // Try to automatically login after successful registration
+    try {
+      const loginRes = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: form.email, password: form.password }),
+      });
+      const loginData = await loginRes.json();
+      if (loginRes.ok) {
+        login(loginData.token, loginData.user);
+        navigate('/dashboard');
+        return;
+      }
+    } catch (err) {
+      console.warn('Auto-login failed', err);
+    }
+
+    alert('Registration successful! Please sign in.');
+    navigate('/login');
   }
 
   return (
